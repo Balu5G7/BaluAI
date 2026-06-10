@@ -1,0 +1,34 @@
+# JARVIS Project
+*.pyc
+__pycache__/
+*.db
+.env
+*.egg-info/
+dist/
+build/
+
+# Python Environments
+venv/
+env/
+.venv/
+
+# JARVIS Generated/Sensitive Files
+temp.wav
+jarvis.mp3
+skills/owner.jpg
+
+# Node
+node_modules/
+
+# Flutter
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.idea/
+.metadata
+
+# OS
+.DS_Store
+Thumbs.db

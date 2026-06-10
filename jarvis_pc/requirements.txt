@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+anthropic
+SpeechRecognition
+pyttsx3
+PyAudio
+pyautogui
+AppOpener
+opencv-python
+pillow
+websockets
+python-dotenv
+psutil
+pyperclip
+pywhatkit
+python-telegram-bot
+google-generativeai
