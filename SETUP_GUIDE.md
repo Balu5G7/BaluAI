@@ -1,97 +1,98 @@
-# 🧠 JARVIS AI Assistant
+# JARVIS AI Assistant
 
-Welcome to the **JARVIS AI** project! This is an advanced, cross-platform personal AI assistant built with a Python backend (PC Brain) and a Flutter mobile application (Remote Control).
-
----
-
-## ✨ Features
-
-- **Wake Word Detection:** Continuously listens for "Hey Jarvis" to activate.
-- **Natural Conversation:** Powered by advanced LLMs (Claude/Gemini/Ollama) for deep contextual understanding.
-- **Facial Security:** Uses DeepFace to recognize the owner and lock out unauthorized users.
-- **System Control:** Can open/close apps, shutdown, sleep, take screenshots, and manage files on the PC.
-- **Telegram Integration:** Remote control and notifications via a Telegram bot.
-- **Sci-Fi Mobile App:** A stunning Flutter-based mobile HUD to view PC status, send commands, and talk to Jarvis remotely via WebSockets.
-- **Auto-Startup:** Configured to start automatically when Windows boots.
+Welcome to the JARVIS AI project. This repository contains the source code for an advanced, cross-platform personal AI assistant utilizing a Python backend (PC Server) and a Flutter mobile application (Remote Interface).
 
 ---
 
-## 🏗️ Architecture
+## Architecture Overview
 
-The project is split into two main components:
+The system architecture is divided into two primary components:
 
-1. **`jarvis_pc/` (The Brain):** A Python FastApi server that handles speech-to-text, LLM processing, PC automation, and WebSocket broadcasting.
-2. **`jarvis_mobile/` (The Remote):** A Flutter app that connects to the PC server. It features an Iron Man style UI with voice waveform visualizers, real-time PC metrics (CPU/RAM), and a chat interface.
-
----
-
-## 🛠️ Prerequisites
-
-Before you begin, ensure you have the following installed:
-- **Python 3.10+** (For the PC server)
-- **Flutter SDK** (For building the Mobile App)
-- **Android Studio** (For deploying the app to your phone)
+1. **`jarvis_pc/` (Core Server):** A Python-based FastAPI server responsible for handling speech-to-text processing, LLM integration (Claude/Gemini/Ollama), automated PC operations, and WebSocket communication.
+2. **`jarvis_mobile/` (Remote Application):** A Flutter application that establishes a WebSocket connection with the PC server. It provides a real-time HUD (Heads-Up Display) for system telemetry, voice command execution, and chat history.
 
 ---
 
-## 🚀 Setup Instructions
+## Core Features
 
-### Part 1: Setting up the PC Server (Brain)
+- **Wake Word Activation:** Implements continuous background listening to detect the designated wake word ("Hey Jarvis").
+- **Natural Language Processing:** Integrates with advanced Large Language Models for context-aware conversational capabilities.
+- **Biometric Security:** Utilizes DeepFace facial recognition to authenticate the owner and restrict unauthorized access.
+- **System Automation:** Executes local system commands including application management, file operations, power state controls, and web queries.
+- **Remote Telemetry & Control:** Supports remote operations and system status monitoring via an integrated Telegram bot.
+- **Automated Deployment:** Includes scripts for seamless integration with Windows Startup.
 
-1. **Navigate to the PC folder:**
+---
+
+## Prerequisites
+
+Ensure the following dependencies are installed prior to deployment:
+- **Python 3.10 or higher** (Required for the backend server)
+- **Flutter SDK** (Required for compiling the mobile application)
+- **Android Studio** (Required for Android device deployment and APK generation)
+
+---
+
+## Installation & Deployment Guide
+
+### Part 1: Configuring the PC Server
+
+1. **Initialize the Server Environment:**
+   Navigate to the backend directory:
    ```bash
    cd jarvis_pc
    ```
 
-2. **Create a Virtual Environment & Install Dependencies:**
+2. **Establish the Virtual Environment:**
    ```bash
    python -m venv venv
-   # Activate the virtual environment
-   # On Windows:
-   .\venv\Scripts\activate
-   # On Mac/Linux:
-   source venv/bin/activate
-   
+   ```
+   Activate the environment:
+   - On Windows: `.\venv\Scripts\activate`
+   - On Mac/Linux: `source venv/bin/activate`
+
+3. **Install Dependencies:**
+   ```bash
    pip install -r requirements.txt
    ```
 
-3. **Configure Environment Variables:**
-   - Copy `.env.example` to `.env`.
-   - Add your API keys (e.g., ElevenLabs, Gemini, Claude, Telegram Bot Token).
+4. **Environment Configuration:**
+   - Duplicate the `.env.example` file and rename it to `.env`.
+   - Populate the file with the required API keys (e.g., ElevenLabs, Gemini, Telegram Bot Token).
 
-4. **Run JARVIS:**
+5. **Initialize the Application:**
    ```bash
    python main.py
    ```
-   *JARVIS will now be listening for his wake word!*
+   The server will initialize the FastAPI instance and commence background listening.
 
-### Part 2: Setting up the Mobile App
+### Part 2: Compiling the Mobile Application
 
-1. **Navigate to the Mobile folder:**
+1. **Navigate to the Application Directory:**
    ```bash
    cd jarvis_mobile
    ```
 
-2. **Get Flutter Packages:**
+2. **Resolve Dependencies:**
    ```bash
    flutter pub get
    ```
 
-3. **Build the Android App (APK):**
+3. **Compile the Android Package (APK):**
    ```bash
    flutter build apk --release
    ```
-   *Note: If you get a 'flutter not found' error, open the `jarvis_mobile` folder in **Android Studio** and build the APK via `Build > Build Bundle(s) / APK(s) > Build APK(s)`.*
+   *Note: If the Flutter CLI is not recognized in the system path, open the `jarvis_mobile` directory using Android Studio and compile via `Build > Build Bundle(s) / APK(s) > Build APK(s)`.*
 
-4. **Install the APK on your Android Phone.**
-5. **Open the App:** Enter your PC's local IP address (e.g., `192.168.1.5`) and the default port (`8765`) to establish the connection!
+4. **Deploy to Device:** 
+   Transfer and install the generated APK file on the target Android device.
+5. **Establish Connection:** 
+   Launch the application and input the host PC's local IP address (e.g., `192.168.1.5`) and configured port (`8765`) to initiate the WebSocket link.
 
 ---
 
-## 💡 Usage
+## Operational Guidelines
 
-- **Voice Command:** Say "Hey Jarvis" near your PC to wake it up, then give your command.
-- **Mobile Control:** Tap the mic button on the mobile app to send a command remotely.
-- **Telegram:** Message your connected Telegram bot to execute commands when you are away from home.
-
-Enjoy your very own intelligent assistant! 🚀
+- **Local Voice Activation:** Speak the wake word in proximity to the host machine's microphone to trigger the command listener.
+- **Remote Application Control:** Use the mobile application's microphone interface to dispatch commands over the local network.
+- **External Remote Control:** Utilize the configured Telegram bot to issue commands and receive status updates remotely over the internet.
