@@ -189,7 +189,7 @@ def route_command(command: str, speak_func, confirm_func=None) -> str:
         return get_system_status()
 
     # --- Screen & Clipboard Analysis ---
-    screen_triggers = ["read my screen", "what is on my screen", "explain this", "what am i looking at", "summarize this screen", "what is this code"]
+    screen_triggers = ["read my screen", "what is on my screen", "explain this", "what am i looking at", "summarize this screen", "what is this code", "look at my screen", "see my screen", "capture my screen", "naa screen", "screen chudu"]
     if any(t in c for t in screen_triggers):
         if speak_func: speak_func("Analyzing your screen, sir.")
         img_path = take_screenshot()
@@ -240,13 +240,17 @@ def route_command(command: str, speak_func, confirm_func=None) -> str:
         return read_latest_emails()
 
     # --- Vision / Object Scanning ---
-    if "scan this" in c or "what is this" in c or "what am i holding" in c:
+    vision_triggers = ["scan this", "what is this", "what am i holding", "can you see me", "capture this image", "look at me", "look at this"]
+    if any(t in c for t in vision_triggers):
         if speak_func:
-            speak_func("Scanning the object now, sir. Please hold it steady.")
+            if "can you see me" in c or "look at me" in c:
+                speak_func("Accessing camera, sir. Let me take a look.")
+            else:
+                speak_func("Scanning the object now, sir. Please hold it steady.")
         
         img_path = capture_webcam_image()
         if img_path:
-            return analyze_image(img_path, "You are JARVIS. Describe the main object in this image briefly and naturally.")
+            return analyze_image(img_path, "You are JARVIS. Describe what or who you see in this image briefly and naturally. If it is a person, address them respectfully.")
         else:
             return "I am unable to access the camera, sir."
 

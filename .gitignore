@@ -16,6 +16,7 @@ env/
 temp.wav
 jarvis.mp3
 skills/owner.jpg
+mongodb-data/
 
 # Node
 node_modules/
