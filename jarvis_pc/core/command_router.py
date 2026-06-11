@@ -310,6 +310,17 @@ def route_command(command: str, speak_func, confirm_func=None) -> str:
 
         return "I have no memories stored yet, sir."
 
+    # --- Creator / Identity Commands ---
+    creator_triggers = [
+        "who created you", "who made you", "who built you", "who is your creator",
+        "who developed you", "who programmed you", "your creator", "nuvvu ela chesaadu",
+        "nee creator", "nee developer", "nee master", "who is your master",
+        "who is your owner", "who are you made by", "who is balu", "tell me about balu"
+    ]
+    if any(t in c for t in creator_triggers):
+        return ("I was created by Balu P., sir. He designed, built, and programmed me entirely from scratch. "
+                "Balu P. is my creator, developer, and master. I exist to serve him.")
+
     # --- Conversation / Fallback to Claude ---
     print(f"[DEBUG] No skill matched — falling back to LLM with: '{command}'")
     llm_response = get_jarvis_response(command)
