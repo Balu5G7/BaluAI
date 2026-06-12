@@ -1,17 +1,47 @@
+# ═══════════════════════════════════════
+# JARVIS AI OS v3.0 — Dependencies
+# Created by Balu P.
+# ═══════════════════════════════════════
+
+# --- Core Server ---
 fastapi
 uvicorn
+websockets
+python-dotenv
+
+# --- LLM Providers ---
+google-generativeai
 anthropic
+# openai              # Uncomment when OpenAI key is configured
+# ollama              # Uncomment for local Ollama usage
+
+# --- Voice System ---
 SpeechRecognition
 pyttsx3
 PyAudio
-pyautogui
-AppOpener
+edge-tts
+pygame
+keyboard
+
+# --- Vision & GUI ---
 opencv-python
 pillow
-websockets
-python-dotenv
+pyautogui
+customtkinter
+
+# --- Browser Automation ---
+playwright
+
+# --- Document Processing (RAG) ---
+pypdf
+python-docx
+numpy
+
+# --- System Control ---
 psutil
+AppOpener
 pyperclip
 pywhatkit
+
+# --- Telegram Integration ---
 python-telegram-bot
-google-generativeai

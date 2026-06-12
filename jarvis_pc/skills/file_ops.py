@@ -44,3 +44,17 @@ def create_folder(folder_path: str) -> str:
         return f"Folder created: {folder_path}"
     except Exception as e:
         return f"Error creating folder: {e}"
+
+def read_pdf(filepath: str) -> str:
+    try:
+        import pypdf
+        reader = pypdf.PdfReader(filepath)
+        text = ""
+        for page in reader.pages:
+            t = page.extract_text()
+            if t:
+                text += t + "\n"
+        return text.strip() if text else "This PDF contains no extractable text."
+    except Exception as e:
+        return f"Error reading PDF: {e}"
+

@@ -9,7 +9,7 @@ import datetime
 
 from skills.app_manager import open_application, close_application
 from skills.system_ops import shutdown_pc, restart_pc, sleep_pc, set_volume, get_system_status
-from skills.file_ops import create_file, read_file, delete_file, move_file, list_directory, create_folder
+from skills.file_ops import create_file, read_file, delete_file, move_file, list_directory, create_folder, read_pdf
 from skills.vision import take_screenshot, capture_webcam_image
 from skills.web_search import search_google, search_youtube, open_url
 from core.llm import get_jarvis_response, analyze_image
@@ -189,11 +189,102 @@ def route_command(command: str, speak_func, confirm_func=None) -> str:
         return get_system_status()
 
     # --- Screen & Clipboard Analysis ---
-    screen_triggers = ["read my screen", "what is on my screen", "explain this", "what am i looking at", "summarize this screen", "what is this code", "look at my screen", "see my screen", "capture my screen", "naa screen", "screen chudu"]
+    screen_triggers = [
+        "read my screen", "what is on my screen", "explain this", "what am i looking at",
+        "summarize this screen", "what is this code", "look at my screen", "see my screen",
+        "capture my screen", "naa screen", "screen chudu", "read code from screen",
+        "read code on screen", "read code on my screen", "explain code on screen",
+        "explain the code on my screen", "copy code from screen"
+    ]
     if any(t in c for t in screen_triggers):
         if speak_func: speak_func("Analyzing your screen, sir.")
         img_path = take_screenshot()
-        return analyze_image(img_path, "You are Jarvis. Look at the attached screenshot of the user's screen. If they asked to 'explain this code' or 'what is this', focus on the main content visible (like code, an article, or an image) and explain it clearly and concisely.")
+        prompt = "You are Jarvis. Look at the attached screenshot of the user's screen. "
+        if "code" in c:
+            prompt += "The user specifically wants to read/extract the code from the screen. Please extract the visible code accurately, format it in a proper Markdown code block, and explain briefly what it does."
+        else:
+            prompt += "If they asked to 'explain this code' or 'what is this', focus on the main content visible (like code, an article, or an image) and explain it clearly and concisely."
+        return analyze_image(img_path, prompt)
+
+    # --- PDF Summarization ---
+    if "summarize pdf" in c or "read pdf" in c:
+        # Check if they specified a file/path
+        match = re.search(r"(?:summarize|read)\s+pdf\s+(?:file\s+)?(?:at\s+)?(.+)", c)
+        pdf_path = None
+        if match:
+            pdf_path = match.group(1).strip().strip("\"'")
+        else:
+            # Let's find the most recent PDF in Downloads or Desktop
+            try:
+                import glob
+                search_dirs = [
+                    os.path.join(os.path.expanduser("~"), "Downloads"),
+                    os.path.join(os.path.expanduser("~"), "Desktop"),
+                    os.path.join(os.path.expanduser("~"), "Documents"),
+                    os.getcwd()
+                ]
+                pdf_files = []
+                for d in search_dirs:
+                    if os.path.exists(d):
+                        pdf_files.extend(glob.glob(os.path.join(d, "*.pdf")))
+                if pdf_files:
+                    # Sort by modification time, newest first
+                    pdf_files.sort(key=os.path.getmtime, reverse=True)
+                    pdf_path = pdf_files[0]
+            except Exception:
+                pass
+        
+        if not pdf_path or not os.path.exists(pdf_path):
+            if pdf_path:
+                return f"I could not find the PDF file at {pdf_path}, sir."
+            return "Please specify the path or filename of the PDF file, sir."
+            
+        if speak_func: speak_func(f"Reading and analyzing the PDF file, sir.")
+        pdf_text = read_pdf(pdf_path)
+        if pdf_text.startswith("Error") or "no extractable text" in pdf_text:
+            return pdf_text
+            
+        filename = os.path.basename(pdf_path)
+        # Summarize using LLM
+        prompt = f"Summarize the following PDF document ({filename}) clearly and concisely, highlighting the main points:\n\n{pdf_text[:100000]}"
+        return get_jarvis_response(prompt)
+
+    # --- Local Image Analysis ---
+    if "read image" in c or "analyze image" in c or "explain image" in c:
+        match = re.search(r"(?:read|analyze|explain)\s+image\s+(?:file\s+)?(?:at\s+)?(.+)", c)
+        img_path = None
+        if match:
+            img_path = match.group(1).strip().strip("\"'")
+        else:
+            # Let's find the most recent image in Downloads or Desktop or Pictures
+            try:
+                import glob
+                search_dirs = [
+                    os.path.join(os.path.expanduser("~"), "Downloads"),
+                    os.path.join(os.path.expanduser("~"), "Desktop"),
+                    os.path.join(os.path.expanduser("~"), "Pictures"),
+                    os.getcwd()
+                ]
+                img_extensions = ["*.png", "*.jpg", "*.jpeg", "*.webp"]
+                img_files = []
+                for d in search_dirs:
+                    if os.path.exists(d):
+                        for ext in img_extensions:
+                            img_files.extend(glob.glob(os.path.join(d, ext)))
+                if img_files:
+                    # Sort by modification time, newest first
+                    img_files.sort(key=os.path.getmtime, reverse=True)
+                    img_path = img_files[0]
+            except Exception:
+                pass
+                
+        if not img_path or not os.path.exists(img_path):
+            if img_path:
+                return f"I could not find the image file at {img_path}, sir."
+            return "Please specify the path or filename of the image file, sir."
+            
+        if speak_func: speak_func(f"Analyzing the image, sir.")
+        return analyze_image(img_path, "You are JARVIS. Analyze the attached image and describe what is in it clearly and concisely.")
 
     if "read clipboard" in c or "summarize this" in c:
         text = pyperclip.paste()
@@ -321,8 +412,16 @@ def route_command(command: str, speak_func, confirm_func=None) -> str:
         return ("I was created by Balu P., sir. He designed, built, and programmed me entirely from scratch. "
                 "Balu P. is my creator, developer, and master. I exist to serve him.")
 
-    # --- Conversation / Fallback to Claude ---
-    print(f"[DEBUG] No skill matched — falling back to LLM with: '{command}'")
-    llm_response = get_jarvis_response(command)
-    print(f"[DEBUG] LLM returned: '{llm_response[:100] if llm_response else '(empty)'}'")
-    return llm_response
+    # --- Conversation / Fallback to Brain Agent ---
+    print(f"[DEBUG] No skill matched — routing to Brain Agent with: '{command}'")
+    try:
+        from core.agents.brain_agent import BrainAgent
+        brain = BrainAgent()
+        brain_response = brain.route_and_execute(command, speak_func=speak_func or print)
+        print(f"[DEBUG] Brain Agent returned: '{brain_response[:100] if brain_response else '(empty)'}'")
+        return brain_response
+    except Exception as e:
+        print(f"[DEBUG] Brain Agent error: {e}, falling back to direct LLM")
+        llm_response = get_jarvis_response(command)
+        print(f"[DEBUG] LLM returned: '{llm_response[:100] if llm_response else '(empty)'}'")
+        return llm_response

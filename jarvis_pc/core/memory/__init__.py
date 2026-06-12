@@ -1,3 +1,6 @@
+# JARVIS Memory Package
+# Re-export MemoryDB so existing imports like `from core.memory import MemoryDB` continue to work.
+
 import sqlite3
 
 
